@@ -8,7 +8,7 @@ In this section, you will configure the Raspberry Pi’s Ethernet connection. Th
 - Custom DNS settings for better control
 - Proper routing priority when both Ethernet and WiFi are available
 
-> **Note:** Skip this section if you plan to use WiFi only.
+> Note: Skip this section if you plan to use WiFi only.
 
 ## Step 1: Plug in the ethernet cable
 

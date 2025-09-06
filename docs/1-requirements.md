@@ -10,7 +10,7 @@ You need a VPN service that supports [Wireguard](https://www.wireguard.com/).
 
 Tested with **Raspberry Pi 5 (16 GB)** and **Raspberry Pi OS Lite 64-bit (Bookworm)**.
 
-> This setup may work on other Raspberry Pi models or Linux-based OSes, but only the above is tested. You may need to adapt the guide for other hardware.
+> Note: This setup may work on other Raspberry Pi models or Linux-based OSes, but only the above is tested. You may need to adapt the guide for other hardware.
 
 ### Initial configuration
 

@@ -6,7 +6,7 @@
 2. Prevent power-saving dropouts
 3. Connect to Wi-Fi using NetworkManager
 
-> If you're using ethernet only for internet connection, you can skip this section.
+> Note: Skip this section if you plan to use ethernet only.
 
 ## Step 1: Verify that a driver is present
 

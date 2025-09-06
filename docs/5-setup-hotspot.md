@@ -4,7 +4,7 @@
 
 In this section, you'll set up your Raspberry Pi as a WiFi hotspot using the `wlan0` interface. This lets other devices connect to your Pi for internet access or local networking.
 
-> **Note:** You need a working internet connection (via Ethernet or WiFi WAN) before starting.
+> Note: You need a working internet connection (via Ethernet or WiFi WAN) before starting.
 
 ---
 
@@ -231,7 +231,7 @@ sudo systemctl restart dnsmasq
    }
    ```
 
-   > **Note:** Only add a rule for the interface(s) you use for internet access (`eth0` for Ethernet, `wlan1` for WiFi WAN).
+   > Note: Only add a rule for the interface(s) you plan to use for internet access (`eth0` for Ethernet, `wlan1` for WiFi WAN).
 
 2. Apply the rules:
    ```bash
