@@ -89,7 +89,7 @@ How:
 
    Paste:
 
-   ```bash
+   ```ini
    [Unit]
    Description=Disable power saving on wlan0
    After=network.target
@@ -189,7 +189,7 @@ sudo nano /etc/systemd/system/dnsmasq.service.d/wlan0-device.conf
 
 Paste:
 
-```bash
+```ini
 [Unit]
 After=sys-subsystem-net-devices-wlan0.device
 Requires=sys-subsystem-net-devices-wlan0.device
@@ -304,7 +304,7 @@ sudo systemctl restart dnsmasq
    sudo nano /etc/default/hostapd
    ```
    Add or update:
-   ```bash
+   ```ini
    DAEMON_CONF="/etc/hostapd/hostapd.conf"
    ```
 
@@ -348,7 +348,7 @@ How:
    sudo nano /etc/NetworkManager/conf.d/unmanaged-wlan.conf
    ```
 2. Paste:
-   ```bash
+   ```ini
    [keyfile]
    unmanaged-devices=interface-name:wlan0
    ```

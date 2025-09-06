@@ -40,7 +40,7 @@ sudo nano /etc/NetworkManager/system-connections/wired-1.nmconnection
 
 Paste or update the following content:
 
-```
+```ini
 [ipv4]
 method=auto
 route-metric=100

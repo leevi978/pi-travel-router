@@ -4,8 +4,7 @@
 
 1. Check if your Wi-Fi adapter and driver are present
 2. Prevent power-saving dropouts
-3. Load the driver
-4. Connect to Wi-Fi using NetworkManager
+3. Connect to Wi-Fi using NetworkManager
 
 > If you're using ethernet only for internet connection, you can skip this section.
 
@@ -49,7 +48,7 @@ sudo udevadm control --reload-rules
 
 Next, configure NetworkManager to disable Wi-Fi power saving:
 
-```bash
+```ini
 # /etc/NetworkManager/conf.d/wifi-powersave.conf
 [connection]
 wifi.powersave=2
@@ -64,7 +63,7 @@ If the hotel Wi-Fi is open (no password), delete the whole `[wifi-security]` sec
 
 Example config:
 
-```
+```ini
 [connection]
 id=wan-hotel
 type=wifi

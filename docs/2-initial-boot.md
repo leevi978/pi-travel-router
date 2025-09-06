@@ -41,7 +41,7 @@ For more details, see the [official documentation](https://www.raspberrypi.com/d
    sudo visudo -f /etc/sudoers.d/010_pi-nopasswd
    ```
 2. Add this line (replace `<username>` with your user):
-   ```
+   ```bash
    <username> ALL=(ALL) PASSWD: ALL
    ```
 
@@ -63,7 +63,7 @@ Fail2ban helps prevent brute-force attacks.
    ```
 2. Scroll to the end (or find the `[ssh]` section). If it doesn't exist, add:
 
-   ```
+   ```ini
    [sshd]
    enabled = false
 
