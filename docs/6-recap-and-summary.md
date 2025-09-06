@@ -1,17 +1,21 @@
 # 6. Where We Are Now & What Comes Next
 
-Use this as a grounding point before we add smarter features.
+You now have a working travel router. It already does everything needed for day‑to‑day use. From here onward we add optional quality, privacy, and convenience upgrades.
 
-## Quick Recap
+## Current Components
 
-You have a Raspberry Pi acting as a small travel router:
+- `wlan0` (built‑in): hotspot (your private SSID) via hostapd
+- `eth0`: wired uplink (preferred when available)
+- `wlan1`: USB adapter joining hotel / public WiFi when no ethernet
+- `dnsmasq`: DHCP + DNS for your devices
+- `nftables`: NAT + basic filtering
+- `sysctl`: enables IP forwarding
 
-- `wlan0` (built‑in): runs the hotspot via hostapd (your private WiFi for phone / laptop / streaming devices).
-- `eth0`: optional wired uplink (preferred when available).
-- `wlan1`: external USB WiFi adapter used to join hotel / public WiFi (uplink when no ethernet).
-- `dnsmasq`: hands out DHCP + provides DNS to your devices.
-- `nftables`: does NAT + basic forwarding/filtering.
-- `sysctl` enables IP forwarding.
+You do NOT need both uplink interfaces. Possible modes:
+
+- Wired‑only: Pi + ethernet (no USB WiFi adapter needed).
+- WiFi‑only: Pi + USB adapter (no ethernet available at location).
+- Dual: Keep both for flexibility; whichever comes up provides the uplink.
 
 ## Mental Model (Current Data Paths)
 
@@ -29,44 +33,43 @@ Hotel/Public AP ⇄ wlan1 (wan-hotel) → NAT/firewall → wlan0 (your hotspot S
 
 ## Automatic Interface Behavior
 
-- When you plug in the USB WiFi adapter, NetworkManager connects it to the configured upstream (`wan-hotel` on `wlan1`).
-- When you connect an ethernet cable, `eth0` (`Wired connection 1`) becomes the uplink automatically.
-- Both modes feed the same hotspot on `wlan0`.
+- If the USB WiFi adapter is present, NetworkManager connects it to `wan-hotel` on `wlan1`.
+- If an ethernet cable is plugged in, `eth0` ("Wired connection 1") becomes the uplink.
+- If only one exists, that one is used—no failure; the other steps just don’t apply.
+- Both (when present) feed the same hotspot on `wlan0`; you can unplug / plug either without reconfiguring the hotspot.
 
 ## Interference Note
 
-`wlan0` (hotspot) and `wlan1` (USB adapter) can sit on overlapping 2.4 GHz spectrum. Even if channels differ, simultaneous transmit/receive in close physical proximity (same board + USB dongle) reduces effective throughput and can increase latency / packet loss.
-Recommendation: If an ethernet jack is available, prefer it and unplug the USB WiFi adapter to free RF space and maximize stability & speed.
+`wlan0` and `wlan1` compete for the same 2.4 GHz airtime. Both active = less throughput + more latency. If ethernet exists: use it and unplug the USB adapter.
 
 ## When To Use Each Uplink
 
-- Use ethernet (`eth0`) whenever a jack is present. Lowest latency, least interference.
-- Use the USB WiFi adapter only when WiFi is the only option.
-- If only WiFi exists, the Pi effectively becomes a WiFi “stability layer” / extender. It usually won’t raise raw Mbps beyond what the upstream allows, but it can:
-  - Provide stronger local signal for your devices (closer, cleaner RF path)
-  - Reduce random disconnects
-  - Normalize multiple devices behind one MAC / session (sometimes helping captive portals)
+Quick rule:
+
+- Ethernet available? Use ethernet (best speed + stability).
+- No ethernet? Use USB WiFi adapter.
+- Have both? Prefer ethernet; keep adapter unplugged unless needed.
+  WiFi‑only mode acts like a small extender: better local signal & fewer drops (not higher raw Mbps). Bonus: single MAC can simplify captive portals.
 
 ## Hostapd Profile Status
 
-Current hotspot tuning is optimized for a wired uplink scenario (assumes stable backhaul). When using `wlan1` as uplink, different airtime / channel / rate control trade‑offs may be better. We’ll automate that soon.
+Current tuning favors wired uplink; WiFi uplink may benefit from different channel / airtime settings. We will automate profile switching later.
 
-## Coming Enhancements (Next Parts)
+## Coming Enhancements
 
-We will layer quality‑of‑life + resilience features:
+Optional add‑ons (stop here if you’re happy):
 
-1. Full‑tunnel option: route all client traffic through a WireGuard (VPN) tunnel; quick commands to toggle / switch configs.
-2. Simple commands to switch & log into new public WiFis (modify upstream without manual editing).
-3. Auto hostapd profile switching: detect whether uplink is `eth0` or `wlan1` and load the matching optimized config.
-4. Media / streaming mode: control streaming or downloads (e.g. to HDMI TV or local storage) from your phone’s browser.
-5. (Optional) Further RF optimizations: adaptive channel selection, transmit power adjustments, coexistence tweaks.
+- VPN / WireGuard: full‑tunnel toggle + quick profile switch
+- Upstream helper: change / log into new public WiFi fast
+- Adaptive hotspot: auto profile based on `eth0` vs `wlan1`
+- Media mode: phone‑controlled streaming / downloads
+- RF tweaks: channel, power, coexistence
 
-## What You Should Do Right Now
+## Quick Self‑Check Before Moving On
 
-Nothing more—just verify both uplink paths work:
+Do only what applies:
 
-1. Test with ethernet plugged in (unplug USB WiFi adapter): confirm internet from a client on the hotspot.
-2. Unplug ethernet, plug in USB adapter: confirm it joins the configured public WiFi and hotspot clients still reach the internet.
-3. Observe any speed / stability difference so you have a baseline before adding VPN overhead later.
-
-Once that feels solid, proceed to the next section where we start adding the VPN layer.
+1. Ethernet present? Test hotspot → internet with ONLY ethernet.
+2. USB adapter present? Test hotspot → internet with ONLY WiFi uplink.
+3. Have both? Compare speeds to form a baseline before VPN.
+   Then move on to the VPN / WireGuard section.
