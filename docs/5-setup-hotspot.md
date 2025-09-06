@@ -26,36 +26,50 @@ sudo systemctl enable hostapd
 
 ## Step 2: Assign a static IP to wlan0
 
-**Goal:** Make sure your Pi always has the same address on the hotspot network.
+**Goal:** Give your hotspot interface a fixed address (10.77.0.1) so clients always know the gateway.
 
 Why?
 
 - Your Pi acts as the gateway for all hotspot clients.
 - Devices need a fixed address to send their traffic for internet access.
-- If you skip this, clients won’t know where to find the gateway and won’t get online.
+- Without a static IP, clients won’t know where to find the gateway and won’t get online.
 
 How:
 
-1. Create the network config:
+1. Create the service file:
    ```bash
-   sudo nano /etc/systemd/network/80-wlan0.network
+   sudo nano /etc/systemd/system/wlan0-static-ip.service
    ```
 2. Paste:
 
-   ```bash
-   [Match]
-   Name=wlan0
+   ```ini
+   [Unit]
+   Description=Assign static IP to wlan0 for hotspot
+   After=network-online.target sys-subsystem-net-devices-wlan0.device
+   Wants=network-online.target sys-subsystem-net-devices-wlan0.device
+   Before=dnsmasq.service
 
-   [Network]
-   Address=10.77.0.1/24
-   IPv6AcceptRA=no
-   IPForward=yes
+   [Service]
+   Type=oneshot
+   ExecStart=/sbin/ip link set wlan0 up
+   ExecStart=/sbin/ip address replace 10.77.0.1/24 dev wlan0
+   RemainAfterExit=yes
+
+   [Install]
+   WantedBy=multi-user.target
    ```
 
-3. Enable networkd:
+3. Enable and start it:
+
    ```bash
-   sudo systemctl enable --now systemd-networkd
+   sudo systemctl enable --now wlan0-static-ip.service
    ```
+
+4. Verify:
+   ```bash
+   ip -4 addr show dev wlan0 | grep 10.77.0.1
+   ```
+   You should see `10.77.0.1/24`.
 
 ---
 
@@ -266,17 +280,17 @@ sudo systemctl restart dnsmasq
 
    # 5 GHz access point settings
    hw_mode=a
-   channel=100
+   channel=36
    ieee80211n=1
    ieee80211ac=1
    ieee80211d=1
    ieee80211h=1
-   ieee80211w=1
    wmm_enabled=1
+   require_vht=1
 
    # Prefer wide channels (80 MHz)
    vht_oper_chwidth=1
-   vht_oper_centr_freq_seg0_idx=106
+   vht_oper_centr_freq_seg0_idx=42
 
    # Enable useful capabilities
    ht_capab=[HT40+][SHORT-GI-20][SHORT-GI-40]
@@ -345,7 +359,33 @@ How:
 
 ---
 
-## Step 11: Limit SSH Access to Hotspot Clients
+## Step 11: Reboot and Test
+
+1. Enable all services and reboot:
+
+   ```bash
+   sudo systemctl enable hostapd dnsmasq nftables ssh
+   sudo systemctl daemon-reload
+   sudo reboot
+   ```
+
+2. After reboot, connect a device to your hotspot. You should get an IP address and internet access (if WAN is set up).
+
+3. If you have issues:
+   - Check service status:
+     ```bash
+     sudo systemctl status hostapd dnsmasq nftables
+     ```
+   - View error logs:
+     ```bash
+     journalctl -xe
+     ```
+
+Your Pi is now a working WiFi hotspot!
+
+---
+
+## Step 12: Limit SSH Access to Hotspot Clients
 
 **Goal:** Only allow SSH connections from devices on your hotspot.
 
@@ -371,28 +411,12 @@ How:
    sudo systemctl enable --now ssh
    ```
 
+> If you're SSH'ing to the Pi from outside the hotspot, this will break SSH.
+
 ---
 
-## Step 12: Reboot and Test
+## Try if fail
 
-1. Enable all services and reboot:
-
-   ```bash
-   sudo systemctl enable hostapd dnsmasq nftables ssh
-   sudo systemctl daemon-reload
-   sudo reboot
-   ```
-
-2. After reboot, connect a device to your hotspot. You should get an IP address and internet access (if WAN is set up).
-
-3. If you have issues:
-   - Check service status:
-     ```bash
-     sudo systemctl status hostapd dnsmasq nftables
-     ```
-   - View error logs:
-     ```bash
-     journalctl -xe
-     ```
-
-Your Pi is now a working WiFi hotspot!
+```bash
+sudo systemctl mask wpa_supplicant@wlan0.service
+```

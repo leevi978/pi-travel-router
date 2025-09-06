@@ -38,6 +38,8 @@ If you see both, you’re good to go!
 
 Some USB Wi-Fi adapters disconnect because of power saving. Fix it with a udev rule:
 
+To ensure that your USB Wi-Fi adapter remains powered on, create a udev rule:
+
 ```bash
 sudo tee /etc/udev/rules.d/50-rtl88x2bu-usb-powersave.rules >/dev/null <<'EOF'
 ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="2357", ATTR{idProduct}=="0138", TEST=="power/control", ATTR{power/control}="on"
@@ -45,40 +47,14 @@ EOF
 sudo udevadm control --reload-rules
 ```
 
-## Load the driver
+Next, configure NetworkManager to disable Wi-Fi power saving:
 
-> If you use multiple external Wi-Fi adapters, make sure your USB adapter is permanently bound to `wlan1` before continuing.
+```bash
+# /etc/NetworkManager/conf.d/wifi-powersave.conf
+[connection]
+wifi.powersave=2
 
-1. **Load the driver and check for your Wi-Fi adapter:**
-
-   ```bash
-   sudo modprobe rtw88_8822bu
-   ip link show | grep wlan
-   ```
-
-   You should see a line with `wlan1`. If not, the driver isn’t loaded or the adapter isn’t detected.
-
-2. **Set the driver to load automatically at boot:**
-
-   ```bash
-   echo "rtw88_8822bu" | sudo tee /etc/modules-load.d/rtw88_8822bu.conf
-   ```
-
-   (No output expected. This just creates a config file.)
-
-3. **Reboot your Raspberry Pi:**
-
-   ```bash
-   sudo reboot
-   ```
-
-   (Wait for the system to restart.)
-
-4. **After reboot, check for your Wi-Fi adapter again:**
-   ```bash
-   ip a | grep wlan
-   ```
-   You should see `wlan1` listed. If you only see `wlan0`, the USB adapter isn’t detected.
+```
 
 ## Bind adapter to WiFi AP
 

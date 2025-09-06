@@ -62,7 +62,11 @@ Fail2ban helps prevent brute-force attacks.
    sudo nano /etc/fail2ban/jail.local
    ```
 2. Scroll to the end (or find the `[ssh]` section). If it doesn't exist, add:
+
    ```
+   [sshd]
+   enabled = false
+
    [ssh]
    enabled  = true
    port     = ssh
