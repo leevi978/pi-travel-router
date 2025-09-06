@@ -8,7 +8,7 @@
 
 > If you're using ethernet only for internet connection, you can skip this section.
 
-## Verify that a driver is present
+## Step 1: Verify that a driver is present
 
 If you use the [TP-Link Archer T3U Plus](https://www.tp-link.com/us/home-networking/usb-adapter/archer-t3u-plus/), its chipset is **Realtek RTL8812BU**. This is supported by the built-in driver `rtw88_8822bu` in modern Raspberry Pi OS.
 
@@ -33,7 +33,7 @@ If you have a different adapter, you’ll need to find and install its driver (n
 
 If you see both, you’re good to go!
 
-## Prevent power-saving dropouts
+## Step 2: Prevent power-saving dropouts
 
 Some USB Wi-Fi adapters disconnect because of power saving. Fix it with a udev rule:
 
@@ -55,7 +55,7 @@ wifi.powersave=2
 
 ```
 
-## Bind adapter to WiFi AP
+## Step 3: Bind USB-adapter to WiFi
 
 Create the file `/etc/NetworkManager/system-connections/wan-hotel.nmconnection`.
 

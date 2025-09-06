@@ -391,6 +391,8 @@ Your Pi is now a working WiFi hotspot!
 
 **Why?** This protects your Pi from remote SSH login attempts on public networks.
 
+> Note: If you are SSH'd into the Pi from outside the hotspot, this step will break the connection.
+
 1. Edit the nftables config:
 
    ```bash
@@ -410,13 +412,3 @@ Your Pi is now a working WiFi hotspot!
    sudo nft -f /etc/nftables.conf
    sudo systemctl enable --now ssh
    ```
-
-> If you're SSH'ing to the Pi from outside the hotspot, this will break SSH.
-
----
-
-## Try if fail
-
-```bash
-sudo systemctl mask wpa_supplicant@wlan0.service
-```
